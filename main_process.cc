@@ -146,7 +146,7 @@ void MainProcess()
 		/// 待機処理
 		///
 
-		// 連続入力を避けるために1秒待機
+		// 連続入力を避けるために300ms待機
 		if (return_input_flag)
 		{
 			WaitTimer(300);

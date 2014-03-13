@@ -7,7 +7,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// 1024x768pxA32bit‚ÅÀs
 	SetGraphMode(1024, 768, 32);
-	
+
 	// ˆÙíˆ—‚Å‹­§I—¹
 	if (DxLib_Init() == -1)	return -1;
 

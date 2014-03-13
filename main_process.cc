@@ -30,12 +30,6 @@ void MainProcess()
 	int shadow_offset_x = 0;
 	int shadow_offset_y = 2;
 
-	// 表示テキスト
-	char* text[] = { "あのイーハトーヴォの", "すきとおった風、", "夏でも底に冷たさをもつ青いそら、", "うつくしい森で飾られたモリーオ市、", "郊外のぎらぎらひかる草の波。" };
-
-	// 配列の要素数を取得
-	int text_length = sizeof(text) / sizeof(text[0]);
-
 
 
 	///
@@ -66,6 +60,34 @@ void MainProcess()
 
 
 	///
+	/// 表示テキスト読み込み
+	///
+
+	// 読み込むファイル名
+	char *input_file_name = "text.txt";
+
+	// 表示テキスト
+	char text[256][256];
+
+	// ファイルを開く
+	int file_handler = FileRead_open(input_file_name);
+
+	// 行数カウント
+	int text_row = 0;
+
+	// ファイル読み込み
+	while (FileRead_eof(file_handler) == 0 && text_row < 256)
+	{
+		FileRead_gets(text[text_row], 256, file_handler);
+		text_row++;
+	}
+
+	// ファイルを閉じる
+	FileRead_close(file_handler);
+
+
+
+	///
 	/// ループ処理
 	///
 
@@ -88,10 +110,10 @@ void MainProcess()
 			page_counter++;
 			return_input_flag = true;
 
-			// テキストの数を超える場合はページを進めない
-			if (page_counter >= text_length)
+			// テキストの行数を超える場合はページを進めない
+			if (page_counter >= text_row)
 			{
-				page_counter = text_length - 1;
+				page_counter = text_row - 1;
 			}
 		}
 

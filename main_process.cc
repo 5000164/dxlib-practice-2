@@ -108,7 +108,13 @@ void MainProcess()
 		ClearDrawScreen();
 
 		// 影のベースとなる文字列を描画
-		DrawString(text_x + shadow_offset_x, text_y + shadow_offset_y, text[page_counter], shadow_color_dx);
+		for (int row = 0; row <= page_counter; row++)
+		{
+			int x = text_x + shadow_offset_x;
+			int y = (int)(text_y + ((font_size * line_height) * row) + shadow_offset_y);
+
+			DrawString(x, y, text[row], shadow_color_dx);
+		}
 
 		// ガウスフィルターを施して影にする
 		GraphFilter(backscreen, DX_GRAPH_FILTER_GAUSS, 8, 50);
@@ -129,7 +135,13 @@ void MainProcess()
 		DrawGraph(0, 0, backscreen, FALSE);
 
 		// 文字列の描画
-		DrawString(text_x, text_y, text[page_counter], font_color_dx);
+		for (int row = 0; row <= page_counter; row++)
+		{
+			int x = text_x;
+			int y = (int)(text_y + ((font_size * line_height) * row));
+
+			DrawString(x, y, text[row], font_color_dx);
+		}
 
 
 

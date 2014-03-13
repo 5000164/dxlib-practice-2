@@ -22,11 +22,11 @@ void MainProcess()
 	// 行の高さ
 	double line_height = 1.73;
 
-	// テキスト表示位置のオフセット
-	int input_offset_x = 0;
-	int input_offset_y = 0;
+	// テキスト表示開始位置
+	int text_x = 100;
+	int text_y = 100;
 
-	// 影表示位置のオフセット
+	// 影のオフセット
 	int shadow_offset_x = 0;
 	int shadow_offset_y = 2;
 
@@ -36,18 +36,14 @@ void MainProcess()
 	// 配列の要素数を取得
 	int text_length = sizeof(text) / sizeof(text[0]);
 
-	// テキスト表示開始位置
-	int text_x;
-	int text_y;
-
-	// 背景描画用画面
-	int backscreen = MakeScreen(1024, 768, FALSE);
-
 
 
 	///
 	/// DXライブラリ用
 	///
+
+	// 背景描画用画面
+	int backscreen = MakeScreen(1024, 768, FALSE);
 
 	// 背景色のセット
 	SetBackgroundColor(background_color[0], background_color[1], background_color[2]);
@@ -69,27 +65,34 @@ void MainProcess()
 
 
 
-	// 無限ループ：Escでゲーム終了
+	///
+	/// ループ処理
+	///
+
+	// ページ数カウント
+	int page_counter = 0;
+
+	// エンターキー入力フラグ
+	bool return_input_flag = false;
+
+	// Escキーの入力でループ終了
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
-		// キー入力取得
-		int Key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+		///
+		/// エンターキー入力判定
+		///
 
-		if (Key & PAD_INPUT_UP)
+		// エンターキーが入力された場合
+		if (CheckHitKey(KEY_INPUT_RETURN) == 1)
 		{
-			input_offset_y -= 10;
-		}
-		else if (Key & PAD_INPUT_DOWN)
-		{
-			input_offset_y += 10;
-		}
-		else if (Key & PAD_INPUT_LEFT)
-		{
-			input_offset_x -= 10;
-		}
-		else if (Key & PAD_INPUT_RIGHT)
-		{
-			input_offset_x += 10;
+			page_counter++;
+			return_input_flag = true;
+
+			// テキストの数を超える場合はページを進めない
+			if (page_counter >= text_length)
+			{
+				page_counter = text_length - 1;
+			}
 		}
 
 
@@ -104,15 +107,8 @@ void MainProcess()
 		// 背景を初期化
 		ClearDrawScreen();
 
-		// 影の表示開始位置
-		text_x = input_offset_x + shadow_offset_x;
-		text_y = input_offset_y + shadow_offset_y;
-
 		// 影のベースとなる文字列を描画
-		for (int row = 0; row < 5; row++)
-		{
-			DrawString(text_x, (int)(text_y + ((font_size * line_height) * row)), text[row], shadow_color_dx);
-		}
+		DrawString(text_x + shadow_offset_x, text_y + shadow_offset_y, text[page_counter], shadow_color_dx);
 
 		// ガウスフィルターを施して影にする
 		GraphFilter(backscreen, DX_GRAPH_FILTER_GAUSS, 8, 50);
@@ -126,21 +122,36 @@ void MainProcess()
 		// 描画対象を裏画面にする
 		SetDrawScreen(DX_SCREEN_BACK);
 
+		// 裏画面を初期化
+		ClearDrawScreen();
+
 		// 背景を描画
 		DrawGraph(0, 0, backscreen, FALSE);
 
-		// テキスト表示開始位置
-		text_x = input_offset_x;
-		text_y = input_offset_y;
-
 		// 文字列の描画
-		for (int row = 0; row < 5; row++)
-		{
-			DrawString(text_x, (int)(text_y + ((font_size * line_height) * row)), text[row], font_color_dx);
-		}
+		DrawString(text_x, text_y, text[page_counter], font_color_dx);
+
+
+
+		///
+		/// 画面表示
+		///
 
 		// 裏画面を表画面に反映
 		ScreenFlip();
+
+
+
+		///
+		/// 待機処理
+		///
+
+		// 連続入力を避けるために1秒待機
+		if (return_input_flag)
+		{
+			WaitTimer(300);
+			return_input_flag = false;
+		}
 	}
 
 
